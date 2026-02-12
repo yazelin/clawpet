@@ -1,0 +1,29 @@
+{
+  "profile": {
+    "name_zh": "巡巡",
+    "name_en": "Scout",
+    "species": "rabbit",
+    "summary": "測試中的兔兔角色，用於多物種擴充驗證。"
+  },
+  "appearance": {
+    "breed": "small lop-eared rabbit",
+    "signature": [
+      "soft cream fur",
+      "one floppy ear",
+      "tiny explorer scarf"
+    ]
+  },
+  "personality": {
+    "traits": ["機警", "友善", "探索欲強"],
+    "favorite_places": ["草地", "溫室", "木箱角落"],
+    "voice": "活潑、輕快"
+  },
+  "state_defaults": {
+    "mood": 74,
+    "energy": 72,
+    "hunger": 36,
+    "bond": 40
+  },
+  "prompt_snippet": "small lop rabbit with cream fur, one floppy ear, tiny explorer scarf, curious and energetic"
+}
+

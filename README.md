@@ -5,6 +5,7 @@ OpenClaw 寵物陪伴專案（MVP），以貓咪起步並對齊 catime 角色資
 ## 文件
 - 提案：`docs/proposal.md`
 - 執行計劃：`docs/execution-plan.md`
+- 多物種資料規範：`docs/multi-species-schema.md`
 
 ## 本地快速安裝（OpenClaw）
 ```bash
@@ -17,4 +18,5 @@ clawpet pets
 clawpet adopt momo
 clawpet interact play
 clawpet prompt
+clawpet catime latest --json
 ```

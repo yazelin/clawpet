@@ -1,6 +1,18 @@
 from pathlib import Path
 
-from clawpet.core import adopt_pet, build_prompt, get_pet, interact, list_pets, load_profile, parse_catime_entries
+from datetime import datetime, timezone
+
+from clawpet.core import (
+    adopt_pet,
+    apply_passive_decay,
+    auto_care_action,
+    build_prompt,
+    get_pet,
+    interact,
+    list_pets,
+    load_profile,
+    parse_catime_entries,
+)
 
 
 def test_list_pets_includes_four_cats():
@@ -50,3 +62,24 @@ def test_parse_catime_entries():
     assert len(parsed) == 1
     assert parsed[0]["number"] == 241
     assert parsed[0]["url"] == "https://example.com/cat.webp"
+
+
+def test_passive_decay_changes_state_when_time_elapsed():
+    profile = {
+        "adopted_pet_id": "momo",
+        "state": {"mood": 80, "energy": 80, "hunger": 20, "bond": 50},
+        "updated_at": "2026-02-12 00:00 UTC",
+    }
+    now = datetime(2026, 2, 12, 3, 0, tzinfo=timezone.utc)
+    refreshed, elapsed = apply_passive_decay(profile, now)
+    assert elapsed == 3
+    assert refreshed["state"]["hunger"] == 32
+    assert refreshed["state"]["energy"] == 71
+    assert refreshed["state"]["mood"] == 74
+    assert refreshed["state"]["bond"] == 47
+
+
+def test_auto_care_action_picks_expected_action():
+    assert auto_care_action({"hunger": 80, "energy": 80, "mood": 50, "bond": 40}) == "feed"
+    assert auto_care_action({"hunger": 40, "energy": 20, "mood": 50, "bond": 40}) == "rest"
+    assert auto_care_action({"hunger": 40, "energy": 60, "mood": 50, "bond": 40}) == "play"

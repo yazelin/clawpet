@@ -12,6 +12,8 @@ from pathlib import Path
 from clawpet.core import (
     PROFILE_PATH,
     adopt_pet,
+    apply_passive_decay,
+    auto_care_action,
     build_prompt,
     get_pet,
     interact,
@@ -28,6 +30,14 @@ def _profile_path(raw: str | None) -> Path | None:
 
 def _print_json(payload: dict | list) -> None:
     print(json.dumps(payload, indent=2, ensure_ascii=False))
+
+
+def _load_live_profile(path: Path | None) -> tuple[dict, int]:
+    profile = load_profile(path)
+    refreshed, elapsed_hours = apply_passive_decay(profile)
+    if elapsed_hours > 0:
+        save_profile(refreshed, path)
+    return refreshed, elapsed_hours
 
 
 def cmd_pets(args: argparse.Namespace) -> int:
@@ -90,9 +100,15 @@ def cmd_adopt(args: argparse.Namespace) -> int:
 
 def cmd_status(args: argparse.Namespace) -> int:
     path = _profile_path(args.profile)
-    profile = load_profile(path)
+    profile, elapsed_hours = _load_live_profile(path)
     pet = get_pet(profile["adopted_pet_id"])
-    payload = {"pet": pet["profile"], "species": pet["species"], "state": profile["state"], "updated_at": profile["updated_at"]}
+    payload = {
+        "pet": pet["profile"],
+        "species": pet["species"],
+        "state": profile["state"],
+        "updated_at": profile["updated_at"],
+        "elapsed_hours": elapsed_hours,
+    }
 
     if args.json:
         _print_json(payload)
@@ -101,13 +117,15 @@ def cmd_status(args: argparse.Namespace) -> int:
     state = profile["state"]
     print(f"Current pet: {pet['profile']['name_zh']} / {pet['profile']['name_en']} ({pet['species']})")
     print(f"Mood: {state['mood']}, Energy: {state['energy']}, Hunger: {state['hunger']}, Bond: {state['bond']}")
+    if elapsed_hours > 0:
+        print(f"Passive update applied: {elapsed_hours}h elapsed")
     print(f"Updated: {profile['updated_at']}")
     return 0
 
 
 def cmd_interact(args: argparse.Namespace) -> int:
     path = _profile_path(args.profile)
-    profile = load_profile(path)
+    profile, elapsed_hours = _load_live_profile(path)
     updated = interact(profile, args.action)
     save_profile(updated, path)
     pet = get_pet(updated["adopted_pet_id"])
@@ -117,6 +135,8 @@ def cmd_interact(args: argparse.Namespace) -> int:
         return 0
 
     state = updated["state"]
+    if elapsed_hours > 0:
+        print(f"Passive update applied first: {elapsed_hours}h elapsed")
     print(f"Action: {args.action}")
     print(f"Pet: {pet['profile']['name_zh']} / {pet['profile']['name_en']}")
     print(f"State -> Mood: {state['mood']}, Energy: {state['energy']}, Hunger: {state['hunger']}, Bond: {state['bond']}")
@@ -127,8 +147,10 @@ def cmd_prompt(args: argparse.Namespace) -> int:
     if args.pet_id:
         pet = get_pet(args.pet_id)
         state = pet["state_defaults"]
+        elapsed_hours = 0
     else:
-        profile = load_profile(_profile_path(args.profile))
+        profile_path = _profile_path(args.profile)
+        profile, elapsed_hours = _load_live_profile(profile_path)
         pet = get_pet(profile["adopted_pet_id"])
         state = profile["state"]
 
@@ -144,6 +166,7 @@ def cmd_prompt(args: argparse.Namespace) -> int:
         "pet_id": pet["id"],
         "pet_name": f"{pet['profile']['name_zh']} / {pet['profile']['name_en']}",
         "species": pet["species"],
+        "elapsed_hours": elapsed_hours,
         "prompt": prompt,
     }
 
@@ -152,6 +175,33 @@ def cmd_prompt(args: argparse.Namespace) -> int:
         return 0
 
     print(prompt)
+    return 0
+
+
+def cmd_care(args: argparse.Namespace) -> int:
+    path = _profile_path(args.profile)
+    profile, elapsed_hours = _load_live_profile(path)
+    chosen_action = args.action or auto_care_action(profile["state"])
+    updated = interact(profile, chosen_action)
+    save_profile(updated, path)
+    pet = get_pet(updated["adopted_pet_id"])
+
+    payload = {
+        "pet": pet["profile"],
+        "action": chosen_action,
+        "elapsed_hours": elapsed_hours,
+        "state": updated["state"],
+    }
+    if args.json:
+        _print_json(payload)
+        return 0
+
+    if elapsed_hours > 0:
+        print(f"Passive update applied first: {elapsed_hours}h elapsed")
+    print(f"Auto care action: {chosen_action}")
+    print(f"Pet: {pet['profile']['name_zh']} / {pet['profile']['name_en']}")
+    state = updated["state"]
+    print(f"State -> Mood: {state['mood']}, Energy: {state['energy']}, Hunger: {state['hunger']}, Bond: {state['bond']}")
     return 0
 
 
@@ -226,6 +276,12 @@ def build_parser() -> argparse.ArgumentParser:
     interact_parser.add_argument("--profile", help="Profile file path")
     interact_parser.add_argument("--json", action="store_true", help="Output JSON")
     interact_parser.set_defaults(func=cmd_interact)
+
+    care_parser = subparsers.add_parser("care", help="Auto-care current pet based on status")
+    care_parser.add_argument("--action", choices=["feed", "play", "rest"], help="Override auto action")
+    care_parser.add_argument("--profile", help="Profile file path")
+    care_parser.add_argument("--json", action="store_true", help="Output JSON")
+    care_parser.set_defaults(func=cmd_care)
 
     prompt_parser = subparsers.add_parser("prompt", help="Generate image prompt text for the pet")
     prompt_parser.add_argument("--pet-id", help="Use a specific pet id instead of profile")

@@ -118,3 +118,12 @@
 4. OpenClaw skill 本地安裝成功
 5. 至少 4 隻貓可被選擇與互動
 6. 保留未來多物種擴充能力
+
+---
+
+## 6) 本次實作完成狀態
+
+- [x] Branch A — `feat/core-pet-engine`
+- [x] Branch B — `feat/openclaw-skill-installer`
+- [x] Branch C — `feat/catime-compat-and-multi-species-ready`
+- [x] Branch D — `chore/readme-and-validation`

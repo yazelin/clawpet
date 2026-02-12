@@ -15,7 +15,7 @@ metadata:
 
 # clawpet — OpenClaw Pet Companion 🐾
 
-Use this skill when the user wants to adopt a pet, check pet status, interact with the pet, or generate a pet image prompt.
+Use this skill when the user wants to adopt a pet, check pet status, interact with the pet, or send a pet image.
 Pet status includes passive time-based updates, so each check-in can reflect elapsed time.
 
 ## Typical triggers
@@ -60,12 +60,25 @@ bash {baseDir}/scripts/clawpet.sh care
 bash {baseDir}/scripts/clawpet.sh care --action feed
 ```
 
+### 7) Generate sendable image URL (preferred for MEDIA)
+```bash
+bash {baseDir}/scripts/clawpet.sh snapshot --json
+```
+This returns JSON with:
+- `image_url`: public HTTP image URL
+- `caption`: suggested caption
+- `media.url`: same URL in message-tool-friendly shape
+
 ## Agent behavior guidance
 1. Always call `bash {baseDir}/scripts/clawpet.sh ...` to avoid missing executable issues.
 2. When user says they want a pet, first run `bash {baseDir}/scripts/clawpet.sh pets`, then ask which one they want.
 3. For regular check-ins, run `bash {baseDir}/scripts/clawpet.sh status`.
 4. For daily care, prefer `bash {baseDir}/scripts/clawpet.sh care`; for explicit requests, run `... interact <action>`.
-5. For image requests, run `bash {baseDir}/scripts/clawpet.sh prompt`, then send/attach the prompt result in your response.
+5. For image requests, run `bash {baseDir}/scripts/clawpet.sh snapshot --json`, then send the returned `image_url` as media.
+6. Never put local file path into `MEDIA:` (for example `/tmp/...jpg`); always use HTTP(S) URL.
+7. If you need explicit send command, use:
+   - `openclaw message send --media "<image_url>" --message "<caption>"`
+   - or message tool payload `media.url = <image_url>`
 
 ## Troubleshooting
 - If `clawpet` command is not found, this skill wrapper auto-falls back to:

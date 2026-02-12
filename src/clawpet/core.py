@@ -7,6 +7,7 @@ import re
 from datetime import datetime, timezone
 from importlib import resources
 from pathlib import Path
+from urllib.parse import quote
 
 PROFILE_PATH = Path.home() / ".openclaw" / "clawpet" / "profile.json"
 PETS_PACKAGE = "clawpet.data.pets"
@@ -235,6 +236,14 @@ def build_prompt(
         f"{profile['name_en']} ({profile['name_zh']}), a {appearance['breed']}, is {activity} at {place}. "
         f"The pet feels {emotion}. Visual identity details: {pet['prompt_snippet']}. "
         f"Style: {style}, high coherence, wholesome companion vibe."
+    )
+
+
+def build_snapshot_url(prompt: str, *, model: str = "flux", width: int = 1024, height: int = 1024) -> str:
+    encoded_prompt = quote(prompt, safe="")
+    return (
+        f"https://image.pollinations.ai/prompt/{encoded_prompt}"
+        f"?model={model}&width={width}&height={height}&nologo=true"
     )
 
 

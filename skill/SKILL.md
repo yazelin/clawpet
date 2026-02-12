@@ -16,6 +16,7 @@ metadata:
 # clawpet — OpenClaw Pet Companion 🐾
 
 Use this skill when the user wants to adopt a pet, check pet status, interact with the pet, or generate a pet image prompt.
+Pet status includes passive time-based updates, so each check-in can reflect elapsed time.
 
 ## Typical triggers
 - "我想養一隻貓"
@@ -53,9 +54,14 @@ clawpet prompt
 clawpet prompt --place "sunny window" --style "soft watercolor"
 ```
 
+### 6) Auto care
+```bash
+clawpet care
+clawpet care --action feed
+```
+
 ## Agent behavior guidance
 1. When user says they want a pet, first run `clawpet pets`, then ask which one they want.
 2. For regular check-ins, run `clawpet status`.
-3. For action requests (feed/play/rest), run `clawpet interact <action>`.
+3. For daily care, prefer `clawpet care`; for explicit requests, run `clawpet interact <action>`.
 4. For image requests, run `clawpet prompt`, then send/attach the prompt result in your response.
-

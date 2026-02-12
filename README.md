@@ -10,7 +10,9 @@ OpenClaw 寵物陪伴專案（MVP），以貓咪起步並對齊 catime 角色資
 ## MVP 功能
 - 4 隻預設可養貓咪：Momo、Mochi、Captain、Lingling。
 - 寵物狀態管理：mood / energy / hunger / bond。
+- 被動狀態演進：依時間自動變化，讓寵物更有「活著」感。
 - 互動命令：`feed` / `play` / `rest`。
+- 自動照護命令：`clawpet care`（依狀態自動選擇餵食/休息/玩耍）。
 - 圖像提示詞生成：`clawpet prompt`。
 - catime 輸出解析：`clawpet catime <query>`。
 - OpenClaw 本地安裝器：自動安裝 CLI + skill + config + SOUL 注入。
@@ -19,6 +21,7 @@ OpenClaw 寵物陪伴專案（MVP），以貓咪起步並對齊 catime 角色資
 - 提案：`docs/proposal.md`
 - 執行計劃：`docs/execution-plan.md`
 - 多物種資料規範：`docs/multi-species-schema.md`
+- 完成報告：`docs/completion-report.md`
 
 ## 本地快速安裝（OpenClaw）
 ```bash
@@ -29,7 +32,8 @@ OpenClaw 寵物陪伴專案（MVP），以貓咪起步並對齊 catime 角色資
 ```bash
 clawpet pets
 clawpet adopt momo
-clawpet interact play
+clawpet care
+clawpet status
 clawpet prompt
 clawpet catime latest --json
 ```
@@ -41,9 +45,26 @@ clawpet show <pet_id> [--json]
 clawpet adopt <pet_id> [--profile <path>] [--json]
 clawpet status [--profile <path>] [--json]
 clawpet interact <feed|play|rest> [--profile <path>] [--json]
+clawpet care [--action <feed|play|rest>] [--profile <path>] [--json]
 clawpet prompt [--pet-id <id>] [--place <scene>] [--style <style>] [--json]
 clawpet catime [query] [--repo owner/repo] [--json]
 ```
+
+## OpenClaw 使用流程（建議）
+1. 執行 `./scripts/install_local.sh`
+2. 在 agent 對話中先做角色選擇（對應 `clawpet pets` + `clawpet adopt <id>`）
+3. 日常互動使用 `clawpet care` 或 `clawpet interact <action>`
+4. 要圖片時使用 `clawpet prompt` 取得描述再送圖
+
+## 開發分支紀錄（已完成）
+- `docs/proposal-plan`
+- `docs/execution-plan`
+- `feat/core-pet-engine`
+- `feat/openclaw-skill-installer`
+- `feat/catime-compat-and-multi-species-ready`
+- `chore/readme-and-validation`
+- `feat/pet-lifecycle`
+- `docs/final-report`
 
 ## 開發與測試
 ```bash

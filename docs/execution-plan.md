@@ -83,6 +83,21 @@
 
 ---
 
+### Branch E — `feat/pet-lifecycle`
+**目標**：讓寵物狀態可隨時間演進，提升「活著」的感受。
+
+**內容**
+- 加入被動狀態演進（hunger/energy/mood/bond）
+- 新增 `care` 自動照護命令（可自動決策或手動覆蓋）
+- 補上對應測試案例
+
+**驗收標準**
+- 有時間差時，狀態會自動更新
+- `clawpet care` 可正常執行且持久化狀態
+- 測試維持綠燈
+
+---
+
 ## 3) 資料結構規範（MVP）
 
 ### `pets/index.json`
@@ -127,3 +142,4 @@
 - [x] Branch B — `feat/openclaw-skill-installer`
 - [x] Branch C — `feat/catime-compat-and-multi-species-ready`
 - [x] Branch D — `chore/readme-and-validation`
+- [x] Branch E — `feat/pet-lifecycle`

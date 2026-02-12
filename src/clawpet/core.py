@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime, timezone
 from importlib import resources
 from pathlib import Path
@@ -15,6 +16,8 @@ INTERACTION_DELTAS = {
     "play": {"hunger": 10, "mood": 14, "bond": 7, "energy": -12},
     "rest": {"hunger": 6, "mood": 5, "bond": 2, "energy": 18},
 }
+
+CATIME_HEADER_RE = re.compile(r"^Cat #\s*(\d+)\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC)\s+model:\s*(.+)$")
 
 
 def _utc_now() -> str:
@@ -178,3 +181,41 @@ def build_prompt(
         f"Style: {style}, high coherence, wholesome companion vibe."
     )
 
+
+def parse_catime_entries(stdout: str) -> list[dict]:
+    """Parse `catime` CLI stdout into structured entries."""
+    entries: list[dict] = []
+    current: dict | None = None
+
+    for raw_line in stdout.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        header = CATIME_HEADER_RE.match(line)
+        if header:
+            if current:
+                entries.append(current)
+            current = {
+                "number": int(header.group(1)),
+                "timestamp": header.group(2),
+                "model": header.group(3).strip(),
+            }
+            continue
+
+        if current is None:
+            continue
+
+        if line.startswith("URL:"):
+            current["url"] = line.removeprefix("URL:").strip()
+        elif line.startswith("Idea:"):
+            current["idea"] = line.removeprefix("Idea:").strip()
+        elif line.startswith("Prompt:"):
+            current["prompt"] = line.removeprefix("Prompt:").strip()
+        elif line.startswith("Story:"):
+            current["story"] = line.removeprefix("Story:").strip()
+
+    if current:
+        entries.append(current)
+
+    return entries

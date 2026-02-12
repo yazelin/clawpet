@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 from clawpet.core import (
@@ -14,6 +17,7 @@ from clawpet.core import (
     interact,
     list_pets,
     load_profile,
+    parse_catime_entries,
     save_profile,
 )
 
@@ -28,7 +32,7 @@ def _print_json(payload: dict | list) -> None:
 
 def cmd_pets(args: argparse.Namespace) -> int:
     pets = []
-    for entry in list_pets():
+    for entry in list_pets(enabled_only=not args.all):
         pet = get_pet(entry["id"])
         profile = pet["profile"]
         pets.append(
@@ -37,6 +41,7 @@ def cmd_pets(args: argparse.Namespace) -> int:
                 "name_zh": profile["name_zh"],
                 "name_en": profile["name_en"],
                 "species": pet["species"],
+                "enabled": entry.get("enabled", True),
                 "summary": profile["summary"],
             }
         )
@@ -46,7 +51,11 @@ def cmd_pets(args: argparse.Namespace) -> int:
         return 0
 
     for pet in pets:
-        print(f"- {pet['id']:<9} [{pet['species']}] {pet['name_zh']} / {pet['name_en']} — {pet['summary']}")
+        status = "enabled" if pet["enabled"] else "disabled"
+        print(
+            f"- {pet['id']:<12} [{pet['species']}] ({status}) "
+            f"{pet['name_zh']} / {pet['name_en']} — {pet['summary']}"
+        )
     return 0
 
 
@@ -146,11 +155,53 @@ def cmd_prompt(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_catime(args: argparse.Namespace) -> int:
+    if shutil.which("catime") is None:
+        print("Error: catime CLI not found. Install it first (e.g. pip install catime).", file=sys.stderr)
+        return 2
+
+    query = args.query or "latest"
+    command = ["catime", query]
+    if args.repo:
+        command.extend(["--repo", args.repo])
+
+    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        error_text = result.stderr.strip() or result.stdout.strip() or "catime command failed"
+        print(f"Error: {error_text}", file=sys.stderr)
+        return result.returncode
+
+    entries = parse_catime_entries(result.stdout)
+    selected = entries[-1] if entries else None
+    payload = {
+        "query": query,
+        "count": len(entries),
+        "selected": selected,
+        "entries": entries,
+    }
+
+    if args.json:
+        _print_json(payload)
+        return 0
+
+    if not selected:
+        print("No cat entries parsed from catime output.")
+        return 1
+
+    print(f"Catime query: {query}")
+    print(f"Selected cat #{selected['number']} at {selected['timestamp']}")
+    print(f"URL: {selected.get('url', 'N/A')}")
+    if selected.get("story"):
+        print(f"Story: {selected['story']}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="clawpet", description="OpenClaw pet companion CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     pets_parser = subparsers.add_parser("pets", help="List available pets")
+    pets_parser.add_argument("--all", action="store_true", help="Include disabled pets")
     pets_parser.add_argument("--json", action="store_true", help="Output JSON")
     pets_parser.set_defaults(func=cmd_pets)
 
@@ -185,6 +236,12 @@ def build_parser() -> argparse.ArgumentParser:
     prompt_parser.add_argument("--json", action="store_true", help="Output JSON")
     prompt_parser.set_defaults(func=cmd_prompt)
 
+    catime_parser = subparsers.add_parser("catime", help="Parse catime CLI output in a clawpet-friendly format")
+    catime_parser.add_argument("query", nargs="?", default="latest", help="catime query, e.g. latest, today, 42")
+    catime_parser.add_argument("--repo", help="Optional catime --repo override")
+    catime_parser.add_argument("--json", action="store_true", help="Output JSON")
+    catime_parser.set_defaults(func=cmd_catime)
+
     return parser
 
 
@@ -196,4 +253,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

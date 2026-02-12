@@ -25,7 +25,12 @@
       "species": "cat",
       "file": "lingling.json",
       "enabled": true
+    },
+    {
+      "id": "bunny-scout",
+      "species": "rabbit",
+      "file": "bunny-scout.json",
+      "enabled": false
     }
   ]
 }
-

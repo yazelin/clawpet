@@ -4,13 +4,13 @@ description: "OpenClaw pet companion skill. Manage adopted pets, run interaction
 metadata:
   openclaw:
     requires:
-      bins: [uv]
+      anyBins: [clawpet, uv, uvx]
     install:
-      - id: clawpet-pip
+      - id: clawpet-git
         kind: pip
-        package: clawpet
+        package: "git+https://github.com/yazelin/clawpet.git"
         bins: [clawpet]
-        label: "Install clawpet (pip install clawpet)"
+        label: "Install clawpet from GitHub"
 ---
 
 # clawpet — OpenClaw Pet Companion 🐾
@@ -28,40 +28,46 @@ Pet status includes passive time-based updates, so each check-in can reflect ela
 
 ### 1) List pets
 ```bash
-clawpet pets
+bash {baseDir}/scripts/clawpet.sh pets
 ```
 
 ### 2) Adopt a pet
 ```bash
-clawpet adopt momo
+bash {baseDir}/scripts/clawpet.sh adopt momo
 ```
 
 ### 3) Check current status
 ```bash
-clawpet status
+bash {baseDir}/scripts/clawpet.sh status
 ```
 
 ### 4) Interact with pet
 ```bash
-clawpet interact feed
-clawpet interact play
-clawpet interact rest
+bash {baseDir}/scripts/clawpet.sh interact feed
+bash {baseDir}/scripts/clawpet.sh interact play
+bash {baseDir}/scripts/clawpet.sh interact rest
 ```
 
 ### 5) Generate image prompt
 ```bash
-clawpet prompt
-clawpet prompt --place "sunny window" --style "soft watercolor"
+bash {baseDir}/scripts/clawpet.sh prompt
+bash {baseDir}/scripts/clawpet.sh prompt --place "sunny window" --style "soft watercolor"
 ```
 
 ### 6) Auto care
 ```bash
-clawpet care
-clawpet care --action feed
+bash {baseDir}/scripts/clawpet.sh care
+bash {baseDir}/scripts/clawpet.sh care --action feed
 ```
 
 ## Agent behavior guidance
-1. When user says they want a pet, first run `clawpet pets`, then ask which one they want.
-2. For regular check-ins, run `clawpet status`.
-3. For daily care, prefer `clawpet care`; for explicit requests, run `clawpet interact <action>`.
-4. For image requests, run `clawpet prompt`, then send/attach the prompt result in your response.
+1. Always call `bash {baseDir}/scripts/clawpet.sh ...` to avoid missing executable issues.
+2. When user says they want a pet, first run `bash {baseDir}/scripts/clawpet.sh pets`, then ask which one they want.
+3. For regular check-ins, run `bash {baseDir}/scripts/clawpet.sh status`.
+4. For daily care, prefer `bash {baseDir}/scripts/clawpet.sh care`; for explicit requests, run `... interact <action>`.
+5. For image requests, run `bash {baseDir}/scripts/clawpet.sh prompt`, then send/attach the prompt result in your response.
+
+## Troubleshooting
+- If `clawpet` command is not found, this skill wrapper auto-falls back to:
+  - `uvx --from git+https://github.com/yazelin/clawpet.git clawpet ...`
+  - `uv tool run --from git+https://github.com/yazelin/clawpet.git clawpet ...`

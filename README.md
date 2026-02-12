@@ -56,6 +56,21 @@ clawpet catime [query] [--repo owner/repo] [--json]
 3. 日常互動使用 `clawpet care` 或 `clawpet interact <action>`
 4. 要圖片時使用 `clawpet prompt` 取得描述再送圖
 
+## ClawHub 安裝（推薦）
+```bash
+clawhub install clawpet
+```
+
+安裝後 skill 會透過 `skill/scripts/clawpet.sh` 自動嘗試：
+1. 直接用本機 `clawpet`
+2. 若不存在，改用 `uvx --from git+https://github.com/yazelin/clawpet.git clawpet ...`
+3. 再退回 `uv tool run --from git+https://github.com/yazelin/clawpet.git clawpet ...`
+
+若你先前遇到「沒有可執行文件」，請執行：
+```bash
+clawhub update clawpet
+```
+
 ## 開發分支紀錄（已完成）
 - `docs/proposal-plan`
 - `docs/execution-plan`

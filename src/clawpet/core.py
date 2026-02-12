@@ -18,10 +18,20 @@ INTERACTION_DELTAS = {
 }
 
 CATIME_HEADER_RE = re.compile(r"^Cat #\s*(\d+)\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC)\s+model:\s*(.+)$")
+PROFILE_TIME_FORMAT = "%Y-%m-%d %H:%M UTC"
+PASSIVE_DELTAS_PER_HOUR = {"hunger": 4, "energy": -3, "mood": -2, "bond": -1}
+MAX_PASSIVE_HOURS = 72
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    return datetime.now(timezone.utc).strftime(PROFILE_TIME_FORMAT)
+
+
+def _parse_utc(value: str) -> datetime | None:
+    try:
+        return datetime.strptime(value, PROFILE_TIME_FORMAT).replace(tzinfo=timezone.utc)
+    except ValueError:
+        return None
 
 
 def _read_resource_json(filename: str) -> dict:
@@ -143,6 +153,44 @@ def interact(profile: dict, action: str) -> dict:
     }
 
 
+def apply_passive_decay(profile: dict, now: datetime | None = None) -> tuple[dict, int]:
+    """Apply passive state changes based on elapsed hours since last update."""
+    current_time = now or datetime.now(timezone.utc)
+    updated_at = _parse_utc(profile.get("updated_at", ""))
+    if updated_at is None:
+        source = profile.get("state", {})
+        normalized = {
+            "adopted_pet_id": profile["adopted_pet_id"],
+            "state": {
+                "mood": _clamp(source.get("mood", 70)),
+                "energy": _clamp(source.get("energy", 70)),
+                "hunger": _clamp(source.get("hunger", 30)),
+                "bond": _clamp(source.get("bond", 35)),
+            },
+            "updated_at": current_time.strftime(PROFILE_TIME_FORMAT),
+        }
+        return normalized, 0
+
+    elapsed_hours = int((current_time - updated_at).total_seconds() // 3600)
+    if elapsed_hours <= 0:
+        return profile, 0
+
+    elapsed_hours = min(elapsed_hours, MAX_PASSIVE_HOURS)
+    state = dict(profile["state"])
+    for field, per_hour_delta in PASSIVE_DELTAS_PER_HOUR.items():
+        state[field] = _clamp(state[field] + per_hour_delta * elapsed_hours)
+
+    if state["hunger"] >= 85:
+        state["mood"] = _clamp(state["mood"] - 6)
+
+    refreshed = {
+        "adopted_pet_id": profile["adopted_pet_id"],
+        "state": state,
+        "updated_at": current_time.strftime(PROFILE_TIME_FORMAT),
+    }
+    return refreshed, elapsed_hours
+
+
 def mood_label(score: int) -> str:
     if score >= 85:
         return "very happy"
@@ -161,6 +209,14 @@ def suggest_activity(state: dict) -> str:
     if state["bond"] >= 80:
         return "staying close to the user and asking for cuddles"
     return "playing with a favorite toy"
+
+
+def auto_care_action(state: dict) -> str:
+    if state["hunger"] >= 70:
+        return "feed"
+    if state["energy"] <= 35:
+        return "rest"
+    return "play"
 
 
 def build_prompt(

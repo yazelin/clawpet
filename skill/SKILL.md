@@ -48,33 +48,37 @@ bash {baseDir}/scripts/clawpet.sh interact play
 bash {baseDir}/scripts/clawpet.sh interact rest
 ```
 
-### 5) Generate image prompt
+### 5) Send pet image (RECOMMENDED for image requests)
+```bash
+bash {baseDir}/scripts/clawpet.sh snapshot
+bash {baseDir}/scripts/clawpet.sh snapshot --place "sunny window" --style "soft watercolor"
+```
+This prints:
+- `MEDIA: <image_url>` — public HTTP URL that OpenClaw will auto-send
+- `CAPTION: <caption>` — suggested caption text
+- `PROMPT: <prompt>` — the full prompt used
+
+With `--json` flag, returns JSON with `image_url`, `caption`, `media.url`.
+
+### 6) Generate text prompt (for advanced use)
 ```bash
 bash {baseDir}/scripts/clawpet.sh prompt
 bash {baseDir}/scripts/clawpet.sh prompt --place "sunny window" --style "soft watercolor"
 ```
+Only use this if you need the prompt text to pass to another image generator.
 
-### 6) Auto care
+### 7) Auto care
 ```bash
 bash {baseDir}/scripts/clawpet.sh care
 bash {baseDir}/scripts/clawpet.sh care --action feed
 ```
-
-### 7) Generate sendable image URL (preferred for MEDIA)
-```bash
-bash {baseDir}/scripts/clawpet.sh snapshot --json
-```
-This returns JSON with:
-- `image_url`: public HTTP image URL
-- `caption`: suggested caption
-- `media.url`: same URL in message-tool-friendly shape
 
 ## Agent behavior guidance
 1. Always call `bash {baseDir}/scripts/clawpet.sh ...` to avoid missing executable issues.
 2. When user says they want a pet, first run `bash {baseDir}/scripts/clawpet.sh pets`, then ask which one they want.
 3. For regular check-ins, run `bash {baseDir}/scripts/clawpet.sh status`.
 4. For daily care, prefer `bash {baseDir}/scripts/clawpet.sh care`; for explicit requests, run `... interact <action>`.
-5. For image requests, run `bash {baseDir}/scripts/clawpet.sh snapshot --json`, then send the returned `image_url` as media.
+5. **For image requests, use `snapshot` command (not `prompt`)**. Run `bash {baseDir}/scripts/clawpet.sh snapshot` and it will print `MEDIA: <url>`. This URL is a public HTTP image that Telegram can display directly.
 6. Never put local file path into `MEDIA:` (for example `/tmp/...jpg`); always use HTTP(S) URL.
 7. If you need explicit send command, use:
    - `openclaw message send --media "<image_url>" --message "<caption>"`

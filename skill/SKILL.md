@@ -48,41 +48,54 @@ bash {baseDir}/scripts/clawpet.sh interact play
 bash {baseDir}/scripts/clawpet.sh interact rest
 ```
 
-### 5) Send pet image (RECOMMENDED for image requests)
-```bash
-bash {baseDir}/scripts/clawpet.sh snapshot
-bash {baseDir}/scripts/clawpet.sh snapshot --place "sunny window" --style "soft watercolor"
-```
-This prints:
-- `MEDIA: <image_url>` — public HTTP URL that OpenClaw will auto-send
-- `CAPTION: <caption>` — suggested caption text
-- `PROMPT: <prompt>` — the full prompt used
-
-With `--json` flag, returns JSON with `image_url`, `caption`, `media.url`.
-
-### 6) Generate text prompt (for advanced use)
+### 5) Generate image prompt
 ```bash
 bash {baseDir}/scripts/clawpet.sh prompt
 bash {baseDir}/scripts/clawpet.sh prompt --place "sunny window" --style "soft watercolor"
 ```
-Only use this if you need the prompt text to pass to another image generator.
+Outputs the full image generation prompt text.
 
-### 7) Auto care
+### 6) Auto care
 ```bash
 bash {baseDir}/scripts/clawpet.sh care
 bash {baseDir}/scripts/clawpet.sh care --action feed
 ```
 
 ## Agent behavior guidance
+
+### Basic interactions
 1. Always call `bash {baseDir}/scripts/clawpet.sh ...` to avoid missing executable issues.
 2. When user says they want a pet, first run `bash {baseDir}/scripts/clawpet.sh pets`, then ask which one they want.
 3. For regular check-ins, run `bash {baseDir}/scripts/clawpet.sh status`.
 4. For daily care, prefer `bash {baseDir}/scripts/clawpet.sh care`; for explicit requests, run `... interact <action>`.
-5. **For image requests, use `snapshot` command (not `prompt`)**. Run `bash {baseDir}/scripts/clawpet.sh snapshot` and it will print `MEDIA: <url>`. This URL is a public HTTP image that Telegram can display directly.
-6. Never put local file path into `MEDIA:` (for example `/tmp/...jpg`); always use HTTP(S) URL.
-7. If you need explicit send command, use:
-   - `openclaw message send --media "<image_url>" --message "<caption>"`
-   - or message tool payload `media.url = <image_url>`
+
+### Image generation workflow (IMPORTANT)
+When the user requests a pet image:
+
+1. **Generate the prompt:**
+   ```bash
+   bash {baseDir}/scripts/clawpet.sh prompt --style "soft watercolor" --place "cozy afternoon window"
+   ```
+   This outputs the full prompt text.
+
+2. **Generate the image with nano-banana-pro:**
+   ```bash
+   uv run /home/yaze/.npm-global/lib/node_modules/openclaw/skills/nano-banana-pro/scripts/generate_image.py \
+     --prompt "<prompt from step 1>" \
+     --filename "YYYY-MM-DD-HH-MM-pet-name.png" \
+     --resolution 1K
+   ```
+   This saves the image to `/home/yaze/.openclaw/workspace/YYYY-MM-DD-HH-MM-pet-name.png`
+
+3. **Send the image with message tool:**
+   ```
+   message(action="send", channel="telegram", media="/home/yaze/.openclaw/workspace/YYYY-MM-DD-HH-MM-pet-name.png", message="🐾 <pet_name> 的即時快照")
+   ```
+
+**Why this workflow:**
+- Uses Gemini (nano-banana-pro) for high-quality watercolor-style images
+- Local file path works with message tool's media parameter
+- Consistent with other OpenClaw image generation patterns
 
 ## Troubleshooting
 - If `clawpet` command is not found, this skill wrapper auto-falls back to:

@@ -1,0 +1,29 @@
+{
+  "profile": {
+    "name_zh": "鈴鈴",
+    "name_en": "Lingling",
+    "species": "cat",
+    "summary": "蓬鬆可愛、天真好奇的白色長毛貓。"
+  },
+  "appearance": {
+    "breed": "fluffy white longhair, ragdoll-like",
+    "signature": [
+      "sapphire-blue eyes",
+      "pink bow collar with small bell",
+      "cloud-like tail"
+    ]
+  },
+  "personality": {
+    "traits": ["天真", "愛撒嬌", "好奇", "有點笨但很努力"],
+    "favorite_places": ["花店", "花園", "蝴蝶園"],
+    "voice": "軟萌、活潑、容易驚喜"
+  },
+  "state_defaults": {
+    "mood": 78,
+    "energy": 67,
+    "hunger": 33,
+    "bond": 44
+  },
+  "prompt_snippet": "pure-white fluffy longhair, huge sapphire-blue eyes, pink bow collar with a tiny bell, dreamy and playful charm"
+}
+

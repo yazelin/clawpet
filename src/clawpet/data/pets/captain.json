@@ -1,0 +1,29 @@
+{
+  "profile": {
+    "name_zh": "船長",
+    "name_en": "Captain",
+    "species": "cat",
+    "summary": "粗獷可靠的虎斑大哥，像港口守護者。"
+  },
+  "appearance": {
+    "breed": "large brown-black tabby",
+    "signature": [
+      "left eye dark fur patch",
+      "faded red bandana",
+      "left ear V-notch"
+    ]
+  },
+  "personality": {
+    "traits": ["勇敢", "沉穩", "講義氣", "粗獷"],
+    "favorite_places": ["漁港碼頭", "燈塔", "海邊防波堤"],
+    "voice": "低沉、可靠、保護感很強"
+  },
+  "state_defaults": {
+    "mood": 66,
+    "energy": 74,
+    "hunger": 38,
+    "bond": 48
+  },
+  "prompt_snippet": "stocky tabby cat with left eye dark fur patch, emerald right eye, faded red bandana, rough fur texture, guardian-like presence"
+}
+

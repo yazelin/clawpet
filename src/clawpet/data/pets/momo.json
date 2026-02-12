@@ -1,0 +1,29 @@
+{
+  "profile": {
+    "name_zh": "墨墨",
+    "name_en": "Momo",
+    "species": "cat",
+    "summary": "優雅沉穩的黑貓，像影子一樣安靜。"
+  },
+  "appearance": {
+    "breed": "sleek black Bombay-style shorthair",
+    "signature": [
+      "golden-amber eyes",
+      "small left-ear gold hoop",
+      "tiny white chest tuft"
+    ]
+  },
+  "personality": {
+    "traits": ["優雅", "安靜", "聰明", "獨立"],
+    "favorite_places": ["舊書店", "咖啡廳窗邊", "月光屋頂"],
+    "voice": "沉穩、神秘、偶爾溫柔"
+  },
+  "state_defaults": {
+    "mood": 72,
+    "energy": 68,
+    "hunger": 34,
+    "bond": 45
+  },
+  "prompt_snippet": "solid-black short coat, amber eyes, left ear has a tiny gold hoop, tiny white chest tuft, elegant and calm posture"
+}
+

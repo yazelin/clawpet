@@ -15,6 +15,7 @@ from clawpet.core import (
     apply_passive_decay,
     auto_care_action,
     build_prompt,
+    build_snapshot_url,
     get_pet,
     interact,
     list_pets,
@@ -178,6 +179,47 @@ def cmd_prompt(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_snapshot(args: argparse.Namespace) -> int:
+    if args.pet_id:
+        pet = get_pet(args.pet_id)
+        state = pet["state_defaults"]
+        elapsed_hours = 0
+    else:
+        profile_path = _profile_path(args.profile)
+        profile, elapsed_hours = _load_live_profile(profile_path)
+        pet = get_pet(profile["adopted_pet_id"])
+        state = profile["state"]
+
+    prompt = build_prompt(
+        pet,
+        state,
+        mood=args.mood,
+        place=args.place,
+        style=args.style,
+    )
+    image_url = build_snapshot_url(prompt)
+    caption = f"🐾 {pet['profile']['name_zh']} / {pet['profile']['name_en']} 的即時快照"
+    payload = {
+        "pet_id": pet["id"],
+        "pet_name": f"{pet['profile']['name_zh']} / {pet['profile']['name_en']}",
+        "species": pet["species"],
+        "elapsed_hours": elapsed_hours,
+        "prompt": prompt,
+        "image_url": image_url,
+        "caption": caption,
+        "media": {"type": "image", "url": image_url},
+    }
+
+    if args.json:
+        _print_json(payload)
+        return 0
+
+    print(f"MEDIA: {image_url}")
+    print(f"CAPTION: {caption}")
+    print(f"PROMPT: {prompt}")
+    return 0
+
+
 def cmd_care(args: argparse.Namespace) -> int:
     path = _profile_path(args.profile)
     profile, elapsed_hours = _load_live_profile(path)
@@ -291,6 +333,15 @@ def build_parser() -> argparse.ArgumentParser:
     prompt_parser.add_argument("--profile", help="Profile file path")
     prompt_parser.add_argument("--json", action="store_true", help="Output JSON")
     prompt_parser.set_defaults(func=cmd_prompt)
+
+    snapshot_parser = subparsers.add_parser("snapshot", help="Generate a direct image URL for media sending")
+    snapshot_parser.add_argument("--pet-id", help="Use a specific pet id instead of profile")
+    snapshot_parser.add_argument("--mood", help="Override mood text")
+    snapshot_parser.add_argument("--place", default="a warm room with soft afternoon light", help="Scene location")
+    snapshot_parser.add_argument("--style", default="illustration", help="Visual style")
+    snapshot_parser.add_argument("--profile", help="Profile file path")
+    snapshot_parser.add_argument("--json", action="store_true", help="Output JSON")
+    snapshot_parser.set_defaults(func=cmd_snapshot)
 
     catime_parser = subparsers.add_parser("catime", help="Parse catime CLI output in a clawpet-friendly format")
     catime_parser.add_argument("query", nargs="?", default="latest", help="catime query, e.g. latest, today, 42")

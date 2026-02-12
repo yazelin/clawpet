@@ -7,6 +7,7 @@ from clawpet.core import (
     apply_passive_decay,
     auto_care_action,
     build_prompt,
+    build_snapshot_url,
     get_pet,
     interact,
     list_pets,
@@ -83,3 +84,10 @@ def test_auto_care_action_picks_expected_action():
     assert auto_care_action({"hunger": 80, "energy": 80, "mood": 50, "bond": 40}) == "feed"
     assert auto_care_action({"hunger": 40, "energy": 20, "mood": 50, "bond": 40}) == "rest"
     assert auto_care_action({"hunger": 40, "energy": 60, "mood": 50, "bond": 40}) == "play"
+
+
+def test_build_snapshot_url_returns_http_url():
+    url = build_snapshot_url("A cat playing with a red ball")
+    assert url.startswith("https://image.pollinations.ai/prompt/")
+    assert "A%20cat%20playing%20with%20a%20red%20ball" in url
+    assert "model=flux" in url

@@ -14,6 +14,7 @@ OpenClaw 寵物陪伴專案（MVP），以貓咪起步並對齊 catime 角色資
 - 互動命令：`feed` / `play` / `rest`。
 - 自動照護命令：`clawpet care`（依狀態自動選擇餵食/休息/玩耍）。
 - 圖像提示詞生成：`clawpet prompt`。
+- 可直接送圖 URL：`clawpet snapshot`（輸出可用於 MEDIA 的 HTTP 圖片網址）。
 - catime 輸出解析：`clawpet catime <query>`。
 - OpenClaw 本地安裝器：自動安裝 CLI + skill + config + SOUL 注入。
 
@@ -35,6 +36,7 @@ clawpet adopt momo
 clawpet care
 clawpet status
 clawpet prompt
+clawpet snapshot --json
 clawpet catime latest --json
 ```
 
@@ -47,6 +49,7 @@ clawpet status [--profile <path>] [--json]
 clawpet interact <feed|play|rest> [--profile <path>] [--json]
 clawpet care [--action <feed|play|rest>] [--profile <path>] [--json]
 clawpet prompt [--pet-id <id>] [--place <scene>] [--style <style>] [--json]
+clawpet snapshot [--pet-id <id>] [--place <scene>] [--style <style>] [--json]
 clawpet catime [query] [--repo owner/repo] [--json]
 ```
 
@@ -54,7 +57,7 @@ clawpet catime [query] [--repo owner/repo] [--json]
 1. 執行 `./scripts/install_local.sh`
 2. 在 agent 對話中先做角色選擇（對應 `clawpet pets` + `clawpet adopt <id>`）
 3. 日常互動使用 `clawpet care` 或 `clawpet interact <action>`
-4. 要圖片時使用 `clawpet prompt` 取得描述再送圖
+4. 要圖片時優先使用 `clawpet snapshot --json`，直接拿 `image_url` 發送媒體
 
 ## ClawHub 安裝（推薦）
 ```bash
@@ -70,6 +73,10 @@ clawhub install clawpet
 ```bash
 clawhub update clawpet
 ```
+
+若你遇到「只顯示路徑，沒有插圖」，請確認：
+- 使用 `snapshot` 的 `image_url`（HTTP/HTTPS），不要送 `/tmp/...` 這類本機路徑
+- 更新到最新版：`clawhub update clawpet`
 
 ## 開發分支紀錄（已完成）
 - `docs/proposal-plan`

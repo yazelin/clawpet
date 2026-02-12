@@ -226,7 +226,7 @@ def build_prompt(
     *,
     mood: str | None = None,
     place: str = "a warm room with soft afternoon light",
-    style: str = "illustration",
+    style: str = "photorealistic, professional pet photography, natural lighting",
 ) -> str:
     profile = pet["profile"]
     appearance = pet["appearance"]
@@ -235,7 +235,7 @@ def build_prompt(
     return (
         f"{profile['name_en']} ({profile['name_zh']}), a {appearance['breed']}, is {activity} at {place}. "
         f"The pet feels {emotion}. Visual identity details: {pet['prompt_snippet']}. "
-        f"Style: {style}, high coherence, wholesome companion vibe."
+        f"Style: {style}, high quality, detailed."
     )
 
 

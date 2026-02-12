@@ -51,9 +51,9 @@ bash {baseDir}/scripts/clawpet.sh interact rest
 ### 5) Generate image prompt
 ```bash
 bash {baseDir}/scripts/clawpet.sh prompt
-bash {baseDir}/scripts/clawpet.sh prompt --place "sunny window" --style "soft watercolor"
+bash {baseDir}/scripts/clawpet.sh prompt --place "sunny window" --style "photorealistic, professional pet photography"
 ```
-Outputs the full image generation prompt text.
+Outputs the full image generation prompt text. Default style is photorealistic.
 
 ### 6) Auto care
 ```bash
@@ -74,9 +74,9 @@ When the user requests a pet image:
 
 1. **Generate the prompt:**
    ```bash
-   bash {baseDir}/scripts/clawpet.sh prompt --style "soft watercolor" --place "cozy afternoon window"
+   bash {baseDir}/scripts/clawpet.sh prompt --place "cozy afternoon window"
    ```
-   This outputs the full prompt text.
+   This outputs the full prompt text. Default style is photorealistic pet photography.
 
 2. **Generate the image with nano-banana-pro:**
    ```bash

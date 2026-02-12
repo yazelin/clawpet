@@ -1,0 +1,29 @@
+{
+  "profile": {
+    "name_zh": "麻糬",
+    "name_en": "Mochi",
+    "species": "cat",
+    "summary": "圓滾滾、貪吃、親人的橘白貓。"
+  },
+  "appearance": {
+    "breed": "chubby orange-and-white domestic shorthair",
+    "signature": [
+      "right-half orange face mask",
+      "heart-shaped orange patch on back",
+      "amber eyes"
+    ]
+  },
+  "personality": {
+    "traits": ["好奇", "貪吃", "慵懶", "親人"],
+    "favorite_places": ["傳統市場", "夜市", "麵包店"],
+    "voice": "溫暖、呆萌、慢半拍"
+  },
+  "state_defaults": {
+    "mood": 70,
+    "energy": 60,
+    "hunger": 45,
+    "bond": 42
+  },
+  "prompt_snippet": "chubby white-and-orange cat, right-side orange face patch, orange mitten on right front paw, white belly, playful foodie energy"
+}
+

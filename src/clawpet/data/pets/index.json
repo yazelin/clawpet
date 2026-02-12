@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "default_pet": "momo",
+  "pets": [
+    {
+      "id": "momo",
+      "species": "cat",
+      "file": "momo.json",
+      "enabled": true
+    },
+    {
+      "id": "mochi",
+      "species": "cat",
+      "file": "mochi.json",
+      "enabled": true
+    },
+    {
+      "id": "captain",
+      "species": "cat",
+      "file": "captain.json",
+      "enabled": true
+    },
+    {
+      "id": "lingling",
+      "species": "cat",
+      "file": "lingling.json",
+      "enabled": true
+    }
+  ]
+}
+
